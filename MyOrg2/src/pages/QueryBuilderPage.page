@@ -1,0 +1,224 @@
+<apex:page controller="QueryBuilderController" showHeader="false" sidebar="false" >
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <meta charset="utf-8"/>
+        
+  </head>
+    <script>
+    	function displayButton(){
+    	j$('[Id $= "bId"]').css('display','block');
+    }
+    
+    j$ = jQuery.noConflict();
+ j$(document).ready(function(){
+        j$(document).delegate(".sampleClass", "click", function(event) {
+       debugger;
+            if(event.target.tagName == 'SPAN'){
+                var a = event.target.closest("td");
+                window.location.href = "/"+a.title;
+                }
+   });
+    });    
+    
+    </script>
+<apex:form id="formId"> 
+      <apex:pageBlock >
+          <apex:pagemessages />
+          <div class="container">
+          
+              <div>
+                  <table style="margin-left:30%">
+                      <tr>
+                      	<td><apex:image id="theImage" value="{!$Resource.salesforcelogo}" width="200" height="100" title=" Query Builder" style="margin-left:20%;"/></td>
+                      	<td><h1>Query Builder</h1></td>
+                      </tr>
+                  </table>
+              		
+                      
+              </div>
+              
+          
+      <div class="jumbotron" style="background:#b3e6ff;">
+             
+               <div class="row">
+              		<div class="col-sm-4"></div>
+              			<div class="col-sm-4">
+                  		<apex:outputlabel value="Object Names :"/> 
+                          <apex:actionRegion >      
+                               <apex:selectList value="{!selectedObject}" size="1">
+                                        <apex:selectOptions value="{!ObjectNames}"/>
+                                        <apex:actionSupport event="onchange" rerender="myFields"/>
+                                </apex:selectList>
+                         </apex:actionRegion>
+                        </div>
+                      <div class="col-sm-4"></div>
+                  </div>
+          <br/><br/>    
+              
+
+              <!--<apex:pageBlockSectionItem >
+                      <apex:outputlabel value="Field Names :"/>   
+                      <apex:outputPanel id="myFields">   
+                        <apex:actionRegion >  
+                           <apex:selectList multiselect="true" value="{!selectedField}" size="">
+                                <apex:selectOptions value="{!ObjectFields}"/>
+                            </apex:selectList>
+                        </apex:actionRegion>      
+                     </apex:outputPanel>
+              </apex:pageBlockSectionItem>
+               <!--<div style="float:left;">
+                           <label>   Maximum # of records to display : </label>
+                         <apex:selectList size="1" value="{!selectedstage}"  >
+                             <apex:selectOptions value="{!stagelist }" /><br/>
+                             </apex:selectList>
+                </div>-->
+              <apex:outputPanel id="myFields">
+                  <div class="row">
+              		<div class="col-sm-4"></div>
+              		<div class="col-sm-4">
+                      <c:MultiselectPicklist leftLabel="All Fields"
+                        leftOption="{!ObjectFields}"
+                        rightLabel="Selected Fields"
+                        rightOption="{!selectedFields}"
+                        size="14"
+                        width="150px"/>
+                      </div>
+                      <div class="col-sm-4"></div>
+                      
+                  </div>
+                  <br/>
+                  <div class="row">
+              		<div class="col-sm-4"></div>
+                      <div class="col-sm-4" style="margin-left:10%;">
+                     <!-- <apex:commandButton value="Generate Query" action="{!getGenQuery}" rerender="wellId"/>-->
+                     <button type="button" class="btn btn-primary" onclick="MyFunc1();" style="border-radius: 12px;background:#737373;color:white">Generate Query</button>
+                  <apex:actionFunction name="MyFunc1" action="{!getGenQuery}" oncomplete="displayButton();" reRender="wellId"/>
+                      </div>
+                      <div class="col-sm-4"></div>
+                  </div>
+              </apex:outputPanel>
+            
+          <br/>
+          <div class="row">
+              <div class="col-sm-4"></div>
+              <div class="col-sm-4">
+              <table>
+                  
+                  <tr>
+                      <td><apex:outputLabel >Maximum # records to display:</apex:outputLabel></td>
+                  	<td>
+                      	<apex:selectList value="{!NoOfRec}" size="1" style="margin-left:50px;">
+                         <apex:selectOption itemValue="500" itemLabel="500"/>
+                         <apex:selectOption itemValue="1000" itemLabel="1000"/>
+                          <apex:selectOption itemValue="5000" itemLabel="5000"/>
+                          <apex:selectOption itemValue="50000" itemLabel="50000"/>
+                         <apex:actionSupport event="onchange" reRender="contacts_list"/>
+                      </apex:selectList>
+                      </td>
+                      
+                  </tr>
+                  <tr>
+                      <br/>
+                  	<td><apex:outputLabel title="Sort as:">Sort as:</apex:outputLabel></td>
+                      <td>
+                      			<apex:selectRadio value="{!selectedValue}">
+                                    <apex:selectOption itemValue="ASC" itemLabel="Ascending"></apex:selectOption>
+                                    <apex:selectOption itemValue="DESC" itemLabel="Descending"></apex:selectOption>
+                                </apex:selectRadio> 
+                      </td>
+                  
+                  </tr>
+              </table>
+           	  </div>
+              <div class="col-sm-4"></div>
+              
+          </div>  <br/>
+          <apex:outputPanel id="wellId">
+          <div class="row">
+              <div class="col-sm-2"></div>
+              <div class="col-sm-8">
+                  <h3>
+                      SOQL Query:
+                  </h3>
+              	<div class="well well-lg" >
+                    <apex:inputTextarea value="{!strQuery}" style="height:100%;width:100%;"/>
+                    
+                </div>
+              </div>
+              <div class="col-sm-2"></div>
+          </div>  
+          </apex:outputPanel>
+          <div class="row">
+              <div class="col-sm-4"></div>
+              <div class="col-sm-4">
+                  
+              	
+                    <!--<apex:commandButton value="Execute Query" action="{!getRecords}" reRender="ShowRecords"/>-->
+               		<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" onclick="MyFunc();" id="bId" style="border-radius: 12px;background:#737373;color:white;margin-left:30%;display:none;">Execute Query</button>
+                  <apex:actionFunction name="MyFunc" action="{!getRecords}"  reRender="ShowRecords"/>
+                    		
+              </div>
+              <div class="col-sm-4"></div>
+          </div>  <br/>
+          <!--<apex:outputPanel id="ShowRecords" style="overflow:auto;width:750px;height:250px"> 
+                <apex:pageBlockSection title="related records" columns="1" rendered="{!AND(NOT(ISNULL(sobjList)),sobjList.size > 0)}" collapsible="false"> 
+                    <apex:pageBlockTable value="{!sobjList}" var="obj"> 
+                        <apex:repeat value="{!Fieldlst}" var="FieldName"> 
+                            <apex:column value="{!obj[FieldName]}"/> 
+                        </apex:repeat> 
+                    </apex:pageBlockTable> 
+                </apex:pageBlockSection> 
+            </apex:outputPanel>-->
+       </div>  
+          <!--  -->
+			<div class="container">
+             
+              <!-- Trigger the modal with a button -->
+              
+            
+              <!-- Modal -->
+              <div class="modal fade" id="myModal" role="dialog" style="width:100%;">
+                <div class="modal-dialog modal-lg" style="width:90%;">
+                
+                  <!-- Modal content-->
+                  <div class="modal-content">
+                    <div class="modal-header" style="background:#b3e6ff;">
+                      <button type="button" class="close" data-dismiss="modal">&times;</button>
+                      <h4 class="modal-title">Related Records</h4>
+                    </div>
+                    <div class="modal-body" style="overflow: scroll; width: 100%;">
+                      
+                        <apex:outputPanel id="ShowRecords" style="overflow:auto;width:750px;height:250px"> 
+                <apex:pageBlockSection title="related records" columns="1" rendered="{!AND(NOT(ISNULL(sobjList)),sobjList.size > 0)}" collapsible="false"> 
+                    <apex:pageBlockTable value="{!sobjList}" var="obj"> 
+                        <apex:repeat value="{!Fieldlst}" var="FieldName"> 
+                            <apex:column value="{!obj[FieldName]}" styleClass="sampleClass" title="{!obj.Id}">
+                                <!--<apex:facet name="head">
+                            	<apex:outputLink value="/{!obj.Id}">{!obj[FieldName]}</apex:outputLink>
+                                </apex:facet>-->
+                            </apex:column>
+                        </apex:repeat> 
+                    </apex:pageBlockTable> 
+                    
+                </apex:pageBlockSection> 
+            </apex:outputPanel>
+                        
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clr();">Close</button>
+                        <apex:actionFunction name="clr" action="{!clearObjects}"  reRender="formId"/>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+              
+            </div>
+		  <!-- -->
+      </div>
+      </apex:pageBlock>
+  </apex:form>
+</apex:page>
